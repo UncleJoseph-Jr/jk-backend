@@ -8,6 +8,26 @@ import { User } from '@prisma/client';
 export class AuthService {
   constructor(private prisma: PrismaService) {}
 
+  async changePassword(userId: number, currentPassword: string, newPassword: string) {
+    const user = await this.prisma.user.findUnique({ where: { id: userId } });
+    if (!user) {
+      throw new Error('User not found');
+    }
+
+    const isPasswordValid = await bcrypt.compare(currentPassword, user.password);
+    if (!isPasswordValid) {
+      throw new Error('Current password is incorrect');
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: { password: hashedPassword },
+    });
+    return { message: 'Password changed successfullu' };
+  }
+
   async getUserById(userId: number) {
     return this.prisma.user.findUnique({
         where: { id: userId },
