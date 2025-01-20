@@ -5,9 +5,10 @@ import { AuthModule } from './auth/auth.module';
 import { ProfileController } from './profile/profile.controller';
 import { ProfileService } from './profile/profile.service';
 import { ProfileModule } from './profile/profile.module';
+import { EmailModule } from './email/email.module';
 
 @Module({
-  imports: [AuthModule, ProfileModule],
+  imports: [AuthModule, ProfileModule, EmailModule],
   controllers: [AppController, ProfileController],
   providers: [AppService, ProfileService],
 })

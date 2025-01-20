@@ -30,16 +30,18 @@ enum Status {
 }
 
 model User {
-  id                Int       @id @default(autoincrement())
-  name              String    @db.VarChar(50)
-  email             String    @unique @db.VarChar(100)
-  password          String
-  phoneNumber       String?   @db.VarChar(20)
-  role              Role      @default(USER)
-  isActive          Boolean   @default(true)
-  status            Status    @default(ACTIVE)
-  verificationToken String?
-  createdAt         DateTime  @default(now())
-  updatedAt         DateTime  @updatedAt
-  lastLogin         DateTime?
+  id                  Int       @id @default(autoincrement())
+  name                String    @db.VarChar(50)
+  email               String    @unique @db.VarChar(100)
+  password            String
+  resetPasswordToken  String?
+  resetTokenExpiresAt DateTime?
+  phoneNumber         String?   @db.VarChar(20)
+  role                Role      @default(USER)
+  isActive            Boolean   @default(true)
+  status              Status    @default(ACTIVE)
+  verificationToken   String?
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+  lastLogin           DateTime?
 }
