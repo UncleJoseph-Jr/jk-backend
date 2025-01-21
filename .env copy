@@ -1,0 +1,5 @@
+DATABASE_URL="postgresql://postgres:password123@localhost:5432/delivery_app_db"
+GMAIL_USER="your-email@gmail.com"
+GMAIL_PASS="your-app-password"
+FRONTEND_URL="http://localhost:3000"
+JWT_SECRET="your-jwt-secret;"

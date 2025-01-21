@@ -6,9 +6,10 @@ import { ProfileController } from './profile/profile.controller';
 import { ProfileService } from './profile/profile.service';
 import { ProfileModule } from './profile/profile.module';
 import { EmailModule } from './email/email.module';
+import { PrismaModule } from './prisma/prisma.module';
 
 @Module({
-  imports: [AuthModule, ProfileModule, EmailModule],
+  imports: [AuthModule, ProfileModule, EmailModule, PrismaModule],
   controllers: [AppController, ProfileController],
   providers: [AppService, ProfileService],
 })
