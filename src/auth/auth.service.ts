@@ -146,6 +146,14 @@ export class AuthService {
       throw new ConflictException('Email is already registered');
     }
 
+    const defaultRole = await this.prisma.role.findUnique({
+      where: { name: 'USER' },
+    });
+
+    if (!defaultRole) {
+      throw new Error('Default role not found');
+    }
+
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const user = await this.prisma.user.create({
@@ -153,6 +161,10 @@ export class AuthService {
         name,
         email,
         password: hashedPassword,
+        roleId: defaultRole.id,
+      },
+      include: {
+        role: true,
       },
     });
 
@@ -162,7 +174,7 @@ export class AuthService {
         id: user.id,
         name: user.name,
         email: user.email,
-        role: user.role,
+        role: user.role.name,
         status: user.status,
         createdAt: user.createdAt,
       },
@@ -170,7 +182,11 @@ export class AuthService {
   }
 
   async login(email: string, password: string): Promise<string> {
-    const user = await this.prisma.user.findUnique({ where: { email } });
+    const user = await this.prisma.user.findUnique({
+      where: { email },
+      include: { role: true },
+    });
+
     if (!user) {
       // throw new Error('User not found');
       throw new UnauthorizedException('Invalid email');
