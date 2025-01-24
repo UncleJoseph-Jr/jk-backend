@@ -11,6 +11,14 @@ import {
   ValidationPipe,
   Query,
 } from '@nestjs/common';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiBearerAuth,
+  ApiBody,
+  ApiQuery,
+} from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { JwtAuthGuard } from './jwt.guard';
 import { ChangePasswordDto } from './change-password.dto';
@@ -19,33 +27,115 @@ import { Response } from 'express';
 import * as jwt from 'jsonwebtoken';
 import * as bcrypt from 'bcrypt';
 
+@ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
+  /////////////////////////////////////////////////////////////////
+  @ApiOperation({ summary: 'Register a new user' })
+  @ApiBody({
+    description: 'User registration details',
+    schema: {
+      properties: {
+        name: { type: 'string', example: 'John Doe' },
+        email: { type: 'string', example: 'john.doe@example.com' },
+        password: { type: 'string', example: 'strongPassword123' },
+      },
+    },
+  })
+  @ApiResponse({
+    status: 201,
+    description: 'User registered successfully.',
+    schema: {
+      example: {
+        message: 'Registration successful',
+        user: {
+          id: 1,
+          name: 'John Doe',
+          email: 'john.doe@example.com',
+          role: 'user',
+          status: 'active',
+          createdAt: '2025-01-23T12:00:00Z',
+        },
+      },
+    },
+  })
+  @ApiResponse({ status: 400, description: 'Validation error.' })
   @Post('register')
   async register(@Body(new ValidationPipe()) body: RegisterDto) {
     const { name, email, password } = body;
     return this.authService.register(name, email, password);
   }
 
+  /////////////////////////////////////////////////////////////////
+  @ApiOperation({ summary: 'User login' })
+  @ApiResponse({ status: 200, description: 'User loged in successfully.' })
+  @ApiResponse({ status: 401, description: 'Invalid credentials.' })
+  @ApiBody({
+    description: 'User login payload',
+    schema: {
+      type: 'object',
+      properties: {
+        email: { type: 'string', example: 'user@example.com' },
+        password: { type: 'string', example: 'password123' },
+      },
+    },
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'User logined successfully',
+    schema: {
+      example: {
+        accessToken: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
+      },
+    },
+  })
   @Post('login')
   async login(@Body() body: { email: string; password: string }) {
     return this.authService.login(body.email, body.password);
   }
 
+  /////////////////////////////////////////////////////////////////
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Change user password.' })
+  @ApiBody({
+    description: 'payload for changing password',
+    schema: {
+      properties: {
+        currentPassword: { type: 'string', example: 'olePassword123' },
+        newPassword: { type: 'string', example: 'newPassword123' },
+      },
+    },
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Password changed successfully.',
+    schema: {
+      example: { message: 'Password changed successfully' },
+    },
+  })
+  @ApiResponse({ status: 401, description: 'Unauthorized.' })
   @Patch('change-password')
   @UseGuards(JwtAuthGuard)
   async changePassword(@Req() req, @Body() body: ChangePasswordDto) {
     const userId = req.user.userId;
-    // const { currentPassword, newPassword } = body;
     return this.authService.changePassword(
       userId,
       body.currentPassword,
       body.newPassword,
     );
   }
-
+  /////////////////////////////////////////////////////////////////
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Logout user.' })
+  @ApiResponse({
+    status: 200,
+    description: 'Logout successful.',
+    schema: {
+      example: { message: 'Lohout successful' },
+    },
+  })
   @UseGuards(JwtAuthGuard)
   @Post('logout')
   async logout(@Req() req): Promise<{ message: string }> {
@@ -53,15 +143,49 @@ export class AuthController {
     return this.authService.logout(token);
   }
 
+  /////////////////////////////////////////////////////////////////
+  @ApiOperation({ summary: 'Forgot password.' })
+  @ApiBody({
+    description: 'Payload for sending password reset link',
+    schema: {
+      properties: {
+        email: { type: 'string', example: 'john.doe@example' },
+      },
+    },
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'password reset link sent to email.',
+    schema: {
+      example: { message: 'Password reset link sent to email' },
+    },
+  })
   @Post('forgot-password')
   async forgotPassword(@Body('email') email: string) {
     return this.authService.forgotPassword(email);
   }
 
-  // @Post('reset-password')
-  // async resetPassword(@Body() body: { token: string, newPassword: string }) {
-  //   return this.authService.resetPassword(body.token, body.newPassword);
-  // }
+  /////////////////////////////////////////////////////////////////
+  @ApiOperation({ summary: 'reset password page.' })
+  @ApiBody({
+    description: 'Reset password details',
+    schema: {
+      properties: {
+        token: {
+          type: 'string',
+          example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
+        },
+        newPassword: { type: 'string', example: 'newStrongPassword123' },
+      },
+    },
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Password reset successful.',
+    schema: {
+      example: { message: 'Password reset successful' },
+    },
+  })
   @Get('reset-password')
   async resetPasswordPage(@Query('token') token: string, @Res() res: Response) {
     try {
@@ -99,6 +223,27 @@ export class AuthController {
     }
   }
 
+  /////////////////////////////////////////////////////////////////
+  @ApiOperation({ summary: 'Reset password.' })
+  @ApiBody({
+    description: 'Reset password details',
+    schema: {
+      properties: {
+        token: {
+          type: 'string',
+          example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
+        },
+        newPassword: { type: 'string', example: 'newStrongPassword123' },
+      },
+    },
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Password reset successful.',
+    schema: {
+      example: { message: 'Password reset successful' },
+    },
+  })
   @Post('reset-password')
   async resetPassword(
     @Body('token') token: string,
@@ -117,4 +262,5 @@ export class AuthController {
       throw new BadRequestException('Invalid or expired token');
     }
   }
+  /////////////////////////////////////////////////////////////////
 }
