@@ -7,9 +7,11 @@ import { ProfileService } from './profile/profile.service';
 import { ProfileModule } from './profile/profile.module';
 import { EmailModule } from './email/email.module';
 import { PrismaModule } from './prisma/prisma.module';
+import { AdminModule } from './admin/admin.module';
+import { MerchantModule } from './merchant/merchant.module';
 
 @Module({
-  imports: [AuthModule, ProfileModule, EmailModule, PrismaModule],
+  imports: [AuthModule, ProfileModule, EmailModule, PrismaModule, AdminModule, MerchantModule],
   controllers: [AppController, ProfileController],
   providers: [AppService, ProfileService],
 })
