@@ -29,6 +29,12 @@ enum Status {
   BANNED
 }
 
+enum MerchantStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
 model User {
   id                  Int       @id @default(autoincrement())
   name                String    @db.VarChar(50)
@@ -44,4 +50,29 @@ model User {
   createdAt           DateTime  @default(now())
   updatedAt           DateTime  @updatedAt
   lastLogin           DateTime?
+  merchants           Merchant[]
+}
+
+model Merchant {
+  id                  Int              @id @default(autoincrement())
+  name                String           @db.VarChar(100)
+  category            String           @db.VarChar(50)
+  owner               User             @relation(fields: [ownerId], references: [id])
+  ownerId             Int
+  documents           Json
+  status              MerchantStatus   @default(PENDING)
+  createdAt           DateTime         @default(now())
+  updatedAt           DateTime         @updatedAt
+  products            Product[]
+}
+
+model Product {
+  id                  Int       @id @default(autoincrement())
+  name                String    @db.VarChar(100)
+  price               Float
+  description         String?
+  merchant            Merchant  @relation(fields: [merchantId], references: [id])
+  merchantId          Int
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
 }
