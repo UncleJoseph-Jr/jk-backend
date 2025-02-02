@@ -8,10 +8,11 @@ import { ProfileModule } from './profile/profile.module';
 import { EmailModule } from './email/email.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { AdminModule } from './admin/admin.module';
-import { MerchantModule } from './merchant/merchant.module';
+import { MerchantsModule } from './merchants/merchants.module';
+import { CategoryModule } from './category/category.module';
 
 @Module({
-  imports: [AuthModule, ProfileModule, EmailModule, PrismaModule, AdminModule, MerchantModule],
+  imports: [AuthModule, ProfileModule, EmailModule, PrismaModule, AdminModule, MerchantsModule, CategoryModule],
   controllers: [AppController, ProfileController],
   providers: [AppService, ProfileService],
 })
